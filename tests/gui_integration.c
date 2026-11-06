@@ -3,7 +3,6 @@
 #define wWinMain production_entry
 #include "../src/main.c"
 #undef wWinMain
-#include <windowsx.h>
 static int failures;
 static void check(BOOL condition, const char *label) {
     printf("%s %s\n",condition?"PASS":"FAIL",label);
@@ -51,18 +50,17 @@ int wmain(int argc, wchar_t **argv) {
     {
         wchar_t caption_text[128]; GetWindowTextW(window,caption_text,128);
         check(wcsstr(caption_text,L"daxiaamu")!=NULL,"window caption contains daxiaamu");
-        int caption_height=titlebar_height();
-        if (caption_height) {
-            RECT action,entry; GetWindowRect(updatebtn,&action); GetWindowRect(input,&entry);
-            MapWindowPoints(NULL,window,(POINT*)&action,2); MapWindowPoints(NULL,window,(POINT*)&entry,2);
-            check(action.top>=0 && action.bottom<=caption_height && entry.top>caption_height,"update button occupies caption above the content");
-            POINT drag={px(300),caption_height/2}; ClientToScreen(window,&drag);
-            check(SendMessageW(window,WM_NCHITTEST,0,MAKELPARAM(drag.x,drag.y))==HTCAPTION,"caption blank area retains window dragging");
-            POINT button={(action.left+action.right)/2,(action.top+action.bottom)/2}; ClientToScreen(window,&button);
-            check(SendMessageW(window,WM_NCHITTEST,0,MAKELPARAM(button.x,button.y))==HTCLIENT,"update action is clickable instead of a drag region");
-            POINT corner={1,1}; ClientToScreen(window,&corner);
-            check(SendMessageW(window,WM_NCHITTEST,0,MAKELPARAM(corner.x,corner.y))==HTTOPLEFT,"custom caption retains resize hit testing");
-        }
+        RECT outer,client,action,indicator,label;
+        POINT client_origin={0,0}; GetWindowRect(window,&outer); ClientToScreen(window,&client_origin);
+        LONG_PTR style=GetWindowLongPtrW(window,GWL_STYLE);
+        check(client_origin.y>outer.top && (style&WS_CAPTION)==WS_CAPTION &&
+              (style&(WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX))==(WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX),
+              "native title bar and system window buttons restored");
+        GetClientRect(window,&client); GetWindowRect(updatebtn,&action); GetWindowRect(progress,&indicator); GetWindowRect(status,&label);
+        MapWindowPoints(NULL,window,(POINT*)&action,2); MapWindowPoints(NULL,window,(POINT*)&indicator,2); MapWindowPoints(NULL,window,(POINT*)&label,2);
+        check(action.left>client.right/2 && action.top>client.bottom/2 && action.right<=client.right && action.bottom<=client.bottom,
+              "update action is inside the bottom-right content area");
+        check(label.right<indicator.left && indicator.right<action.left,"footer status progress and update action do not overlap");
     }
     check(!(GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE),"idle task progress is hidden");
     wchar_t path[PATH_CAP], outdir[PATH_CAP];

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "policyRevision": 4,
+  "policyRevision": 5,
   "maxForcedVersionCode": 0,
-  "reason": "发布 1.0.3，将更新入口移至标题栏并加入 daxiaamu 标识；保留普通更新策略。"
+  "reason": "发布 1.0.4，恢复原生标题栏及系统按钮，将更新入口放到右下角；保留普通更新策略。"
 }

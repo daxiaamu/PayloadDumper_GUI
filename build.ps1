@@ -40,10 +40,10 @@ foreach ($arch in $Architectures) {
         (Join-Path $PSScriptRoot 'third_party\miniz\miniz_tinfl.c'),'-o',(Join-Path $build 'tinfl.o'))
     Invoke-Checked $compiler @('-std=c11','-O2','-Wall','-Wextra','-Werror','-static','-s','-municode','-mwindows',
         '-finput-charset=UTF-8','-fexec-charset=UTF-8','-D__USE_MINGW_ANSI_STDIO=1',
-        (Join-Path $PSScriptRoot 'src\main.c'),(Join-Path $PSScriptRoot 'src\update.c'),(Join-Path $PSScriptRoot 'src\titlebar.c'),
+        (Join-Path $PSScriptRoot 'src\main.c'),(Join-Path $PSScriptRoot 'src\update.c'),
         (Join-Path $PSScriptRoot 'src\update_core.c'),(Join-Path $build 'tinfl.o'),(Join-Path $build 'app.o'),
         '-o',(Join-Path $package 'PayloadDumperGUI.exe'),
-        '-lcomctl32','-lcomdlg32','-lshell32','-lshlwapi','-lole32','-lgdi32','-luuid','-lwinhttp','-lbcrypt','-lversion','-ladvapi32','-luxtheme','-ldwmapi')
+        '-lcomctl32','-lcomdlg32','-lshell32','-lshlwapi','-lole32','-lgdi32','-luuid','-lwinhttp','-lbcrypt','-lversion','-ladvapi32','-luxtheme')
     Invoke-Checked $compiler @('-std=c11','-O2','-Wall','-Wextra','-Werror','-static','-s','-municode','-mwindows',
         '-D__USE_MINGW_ANSI_STDIO=1',(Join-Path $PSScriptRoot 'src\updater.c'),
         (Join-Path $PSScriptRoot 'src\update_core.c'),(Join-Path $build 'tinfl.o'),(Join-Path $build 'app.o'),
