@@ -1,0 +1,46 @@
+{
+  "appId": "daxiaamu.PayloadDumperGUI",
+  "changelog": "## Payload Dumper 1.0.2\n\n- 修复任务完成后进度条停留在绿色动画帧的问题：进度条仅在任务运行时显示，完成、失败和取消后均隐藏。\n- 日志不再回显配套工具的执行命令和完整参数，只保留工具结果与必要状态信息。\n- x64 / x86 均已通过对应状态切换的回归测试。\n\n可通过程序底部“检查更新”更新，或下载对应架构的完整便携 ZIP。\n",
+  "channel": "stable",
+  "maxForcedVersionCode": 0,
+  "packages": {
+    "x64": {
+      "fileName": "PayloadDumperGUI-win-x64.zip",
+      "sha256": "48de1225c7410673cb1fd11c67a5c6dbf1609e208edd6b6d6efca4fd1ce15807",
+      "size": 501426,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://ghproxy.net/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://ghproxy.vip/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x64.zip"
+      ]
+    },
+    "x86": {
+      "fileName": "PayloadDumperGUI-win-x86.zip",
+      "sha256": "907a48d242f31a6c81f287fcfde84de8c9b31eaff784458d83bb58022fbfaeba",
+      "size": 576547,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://ghproxy.net/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://ghproxy.vip/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.2/PayloadDumperGUI-win-x86.zip"
+      ]
+    }
+  },
+  "policyRevision": 3,
+  "publishedAt": "2026-11-06T17:12:19Z",
+  "releaseUrl": "https://github.com/daxiaamu/PayloadDumper_GUI/releases/tag/v1.0.2",
+  "schemaVersion": 1,
+  "versionCode": 1000002,
+  "versionName": "1.0.2"
+}
