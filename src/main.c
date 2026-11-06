@@ -22,6 +22,8 @@
 #include <wctype.h>
 #include "resource.h"
 #include "update.h"
+#include "titlebar.h"
+#include "version.h"
 
 #define PATH_CAP 32768
 #define WM_LOG (WM_APP + 1)
@@ -394,21 +396,26 @@ static HWND control(const wchar_t *cls, const wchar_t *text, DWORD style, int id
     SendMessageW(h, WM_SETFONT, (WPARAM)ui_font, TRUE); return h;
 }
 static void move(HWND h, int x, int y, int w, int height) { MoveWindow(h, px(x),px(y),px(w),px(height),TRUE); }
+static void move_content(HWND h,int x,int y,int w,int height) {
+    MoveWindow(h,px(x),titlebar_height()+px(y),px(w),px(height),TRUE);
+}
 static void layout(void) {
     RECT r; GetClientRect(window, &r);
-    int w = MulDiv(r.right,96,dpi), h = MulDiv(r.bottom,96,dpi), field = w-230;
-    move(labels[0],24,29,100,24); move(input,128,24,field,30); move(filebtn,w-90,24,66,30);
-    move(labels[1],24,73,100,24); move(output,128,68,field,30); move(folderbtn,w-90,68,66,30);
-    move(labels[2],24,117,100,24); move(partitions,128,112,w-386,30);
-    move(labels[3],w-238,117,54,24); move(workers,w-178,112,154,30);
-    move(hint,128,148,w-152,24);
-    move(unpackbtn,24,188,108,34); move(listbtn,144,188,108,34);
-    move(metadatabtn,264,188,154,34); move(arbbtn,430,188,108,34);
-    move(cancelbtn,w-108,188,84,34);
-    move(logbox,24,240,w-48,h-322);
-    move(clearbtn,24,h-65,88,30); move(openbtn,124,h-65,132,30);
-    move(updatebtn,268,h-65,112,30);
-    move(progress,w-146,h-59,122,16); move(status,398,h-61,w-558,24);
+    int w = MulDiv(r.right,96,dpi), h = MulDiv(r.bottom-titlebar_height(),96,dpi), field = w-230;
+    move_content(labels[0],24,29,100,24); move_content(input,128,24,field,30); move_content(filebtn,w-90,24,66,30);
+    move_content(labels[1],24,73,100,24); move_content(output,128,68,field,30); move_content(folderbtn,w-90,68,66,30);
+    move_content(labels[2],24,117,100,24); move_content(partitions,128,112,w-386,30);
+    move_content(labels[3],w-238,117,54,24); move_content(workers,w-178,112,154,30);
+    move_content(hint,128,148,w-152,24);
+    move_content(unpackbtn,24,188,108,34); move_content(listbtn,144,188,108,34);
+    move_content(metadatabtn,264,188,154,34); move_content(arbbtn,430,188,108,34);
+    move_content(cancelbtn,w-108,188,84,34);
+    move_content(logbox,24,240,w-48,h-322);
+    move_content(clearbtn,24,h-65,88,30); move_content(openbtn,124,h-65,132,30);
+    if (titlebar_height()) titlebar_place_update();
+    else move(updatebtn,268,h-65,112,30);
+    move_content(progress,w-146,h-59,122,16);
+    move_content(status,titlebar_height()?274:398,h-61,w-(titlebar_height()?434:558),24);
 }
 static void fonts(void) {
     if (ui_font) DeleteObject(ui_font);
@@ -422,6 +429,8 @@ static void fonts(void) {
     }
 }
 static LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    LRESULT frame_result=0;
+    if (titlebar_message(hwnd,msg,wp,lp,&frame_result)) return frame_result;
     switch (msg) {
     case WM_CREATE:
         window = hwnd;
@@ -452,14 +461,16 @@ static LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         updatebtn=control(L"BUTTON",L"检查更新",WS_TABSTOP,ID_UPDATE,0);
         status=control(L"STATIC",L"就绪",0,0,0);
         progress=control(PROGRESS_CLASSW,L"",PBS_MARQUEE,0,0);
-        fonts(); set_busy(FALSE); layout(); DragAcceptFiles(hwnd,TRUE);
+        fonts(); set_busy(FALSE);
+        titlebar_init(hwnd,updatebtn,instance,dpi);
+        layout(); DragAcceptFiles(hwnd,TRUE);
         return 0;
     case WM_SIZE: layout(); return 0;
     case WM_GETMINMAXINFO:
         ((MINMAXINFO*)lp)->ptMinTrackSize.x=px(800);
         ((MINMAXINFO*)lp)->ptMinTrackSize.y=px(485); return 0;
     case WM_DPICHANGED: {
-        dpi=HIWORD(wp); fonts(); RECT *r=(RECT*)lp;
+        dpi=HIWORD(wp); fonts(); titlebar_set_dpi(dpi); RECT *r=(RECT*)lp;
         SetWindowPos(hwnd,NULL,r->left,r->top,r->right-r->left,r->bottom-r->top,SWP_NOZORDER|SWP_NOACTIVATE);
         layout(); return 0;
     }
@@ -514,7 +525,7 @@ static LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         if (active) cancel_task();
         if (!active && !updater_busy()) DestroyWindow(hwnd);
         return 0;
-    case WM_DESTROY: updater_destroy(); PostQuitMessage(0); return 0;
+    case WM_DESTROY: titlebar_destroy(); updater_destroy(); PostQuitMessage(0); return 0;
     }
     return DefWindowProcW(hwnd,msg,wp,lp);
 }
@@ -539,7 +550,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     wc.hCursor=LoadCursorW(NULL,IDC_ARROW); wc.hbrBackground=white; wc.lpszClassName=L"PayloadDumperGuiC";
     wc.hIcon=LoadIconW(instance,MAKEINTRESOURCEW(IDI_APP)); wc.hIconSm=wc.hIcon;
     if (!RegisterClassExW(&wc)) return 1;
-    HWND main_window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,L"Payload Dumper",WS_OVERLAPPEDWINDOW,
+    HWND main_window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,APP_WINDOW_TITLE,WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,CW_USEDEFAULT,px(980),px(645),NULL,NULL,instance,NULL);
     if (!main_window || !input || !output || !logbox || !progress) {
         MessageBoxW(NULL,L"无法创建窗口控件。",L"启动失败",MB_ICONERROR); return 1;

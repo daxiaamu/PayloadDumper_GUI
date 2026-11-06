@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "policyRevision": 3,
+  "policyRevision": 4,
   "maxForcedVersionCode": 0,
-  "reason": "发布 1.0.2，修复任务结束后残留进度条并移除命令回显；保留普通更新策略。"
+  "reason": "发布 1.0.3，将更新入口移至标题栏并加入 daxiaamu 标识；保留普通更新策略。"
 }

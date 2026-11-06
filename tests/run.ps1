@@ -20,7 +20,7 @@ try {
         $test = Join-Path $testDir 'gui_integration.exe'
         & $gcc -std=c11 -O2 -Wall -Wextra -Werror -static -s (Join-Path $PSScriptRoot 'probe.c') -o $probe -lshell32
         if ($LASTEXITCODE) { throw 'Probe compile failed' }
-        & $gcc -std=c11 -O2 -Wall -Wextra -Werror -static -s -municode -mconsole -D__USE_MINGW_ANSI_STDIO=1 (Join-Path $PSScriptRoot 'gui_integration.c') (Join-Path $root 'src\update.c') (Join-Path $root 'src\update_core.c') (Join-Path $testDir 'tinfl.o') (Join-Path $testDir 'app.o') -o $test -lcomctl32 -lcomdlg32 -lshell32 -lshlwapi -lole32 -lgdi32 -luuid -lwinhttp -lbcrypt -lversion -ladvapi32 -luxtheme
+        & $gcc -std=c11 -O2 -Wall -Wextra -Werror -static -s -municode -mconsole -D__USE_MINGW_ANSI_STDIO=1 (Join-Path $PSScriptRoot 'gui_integration.c') (Join-Path $root 'src\update.c') (Join-Path $root 'src\update_core.c') (Join-Path $root 'src\titlebar.c') (Join-Path $testDir 'tinfl.o') (Join-Path $testDir 'app.o') -o $test -lcomctl32 -lcomdlg32 -lshell32 -lshlwapi -lole32 -lgdi32 -luuid -lwinhttp -lbcrypt -lversion -ladvapi32 -luxtheme -ldwmapi
         if ($LASTEXITCODE) { throw 'GUI integration test compile failed' }
         & $test (Join-Path $root "dist\win-$arch") (Join-Path $root '.build\smoke\中文 路径 & fixture') $probe
         if ($LASTEXITCODE) { throw "GUI integration failed: $arch" }

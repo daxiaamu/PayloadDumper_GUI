@@ -3,6 +3,7 @@
 #define wWinMain production_entry
 #include "../src/main.c"
 #undef wWinMain
+#include <windowsx.h>
 static int failures;
 static void check(BOOL condition, const char *label) {
     printf("%s %s\n",condition?"PASS":"FAIL",label);
@@ -44,9 +45,25 @@ int wmain(int argc, wchar_t **argv) {
     WNDCLASSEXW wc={0}; wc.cbSize=sizeof(wc); wc.hInstance=instance; wc.lpfnWndProc=wndproc;
     wc.hbrBackground=white; wc.lpszClassName=L"PayloadDumperIntegration";
     RegisterClassExW(&wc);
-    window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,L"Test",WS_OVERLAPPEDWINDOW,
+    window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,APP_WINDOW_TITLE,WS_OVERLAPPEDWINDOW,
         0,0,980,720,NULL,NULL,instance,NULL);
     check(window && input && output && logbox && progress,"create native controls");
+    {
+        wchar_t caption_text[128]; GetWindowTextW(window,caption_text,128);
+        check(wcsstr(caption_text,L"daxiaamu")!=NULL,"window caption contains daxiaamu");
+        int caption_height=titlebar_height();
+        if (caption_height) {
+            RECT action,entry; GetWindowRect(updatebtn,&action); GetWindowRect(input,&entry);
+            MapWindowPoints(NULL,window,(POINT*)&action,2); MapWindowPoints(NULL,window,(POINT*)&entry,2);
+            check(action.top>=0 && action.bottom<=caption_height && entry.top>caption_height,"update button occupies caption above the content");
+            POINT drag={px(300),caption_height/2}; ClientToScreen(window,&drag);
+            check(SendMessageW(window,WM_NCHITTEST,0,MAKELPARAM(drag.x,drag.y))==HTCAPTION,"caption blank area retains window dragging");
+            POINT button={(action.left+action.right)/2,(action.top+action.bottom)/2}; ClientToScreen(window,&button);
+            check(SendMessageW(window,WM_NCHITTEST,0,MAKELPARAM(button.x,button.y))==HTCLIENT,"update action is clickable instead of a drag region");
+            POINT corner={1,1}; ClientToScreen(window,&corner);
+            check(SendMessageW(window,WM_NCHITTEST,0,MAKELPARAM(corner.x,corner.y))==HTTOPLEFT,"custom caption retains resize hit testing");
+        }
+    }
     check(!(GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE),"idle task progress is hidden");
     wchar_t path[PATH_CAP], outdir[PATH_CAP];
     join_path(path,PATH_CAP,argv[2],L"OTA 中文 & 空格.zip");

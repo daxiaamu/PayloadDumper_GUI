@@ -2,7 +2,8 @@ param(
     [ValidateSet('x64','x86')][string[]]$Architectures = @('x64','x86'),
     [string]$Compiler64 = 'D:\mingw64\bin\gcc.exe',
     [string]$Compiler32 = 'D:\msys64\mingw32\bin\gcc.exe',
-    [string]$PayloadProject = (Join-Path $PSScriptRoot 'third_party\payload_dumper_C')
+    [string]$PayloadProject = (Join-Path $PSScriptRoot 'third_party\payload_dumper_C'),
+    [switch]$SkipRootCopy
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -39,10 +40,10 @@ foreach ($arch in $Architectures) {
         (Join-Path $PSScriptRoot 'third_party\miniz\miniz_tinfl.c'),'-o',(Join-Path $build 'tinfl.o'))
     Invoke-Checked $compiler @('-std=c11','-O2','-Wall','-Wextra','-Werror','-static','-s','-municode','-mwindows',
         '-finput-charset=UTF-8','-fexec-charset=UTF-8','-D__USE_MINGW_ANSI_STDIO=1',
-        (Join-Path $PSScriptRoot 'src\main.c'),(Join-Path $PSScriptRoot 'src\update.c'),
+        (Join-Path $PSScriptRoot 'src\main.c'),(Join-Path $PSScriptRoot 'src\update.c'),(Join-Path $PSScriptRoot 'src\titlebar.c'),
         (Join-Path $PSScriptRoot 'src\update_core.c'),(Join-Path $build 'tinfl.o'),(Join-Path $build 'app.o'),
         '-o',(Join-Path $package 'PayloadDumperGUI.exe'),
-        '-lcomctl32','-lcomdlg32','-lshell32','-lshlwapi','-lole32','-lgdi32','-luuid','-lwinhttp','-lbcrypt','-lversion','-ladvapi32','-luxtheme')
+        '-lcomctl32','-lcomdlg32','-lshell32','-lshlwapi','-lole32','-lgdi32','-luuid','-lwinhttp','-lbcrypt','-lversion','-ladvapi32','-luxtheme','-ldwmapi')
     Invoke-Checked $compiler @('-std=c11','-O2','-Wall','-Wextra','-Werror','-static','-s','-municode','-mwindows',
         '-D__USE_MINGW_ANSI_STDIO=1',(Join-Path $PSScriptRoot 'src\updater.c'),
         (Join-Path $PSScriptRoot 'src\update_core.c'),(Join-Path $build 'tinfl.o'),(Join-Path $build 'app.o'),
@@ -68,6 +69,7 @@ foreach ($arch in $Architectures) {
     Write-Host "Built $package"
 }
 # Default launch location: x64 when available; use x86 for a 32-bit-only build.
+if ($SkipRootCopy) { Write-Host 'Built portable packages; running root application left in place.'; return }
 $defaultArch = if ($Architectures -contains 'x64') { 'x64' } else { 'x86' }
 $default = Join-Path $PSScriptRoot "dist\win-$defaultArch"
 Copy-Item -LiteralPath (Join-Path $default 'PayloadDumperGUI.exe') -Destination $PSScriptRoot

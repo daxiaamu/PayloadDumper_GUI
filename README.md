@@ -43,7 +43,8 @@ HTTP 链接需要服务器支持 Range；增量包及格式支持范围以 paylo
 
 这里的 OTA 是本工具自身的在线更新，与 Android 固件解包分开处理。
 
-- 启动后延迟检查一次；底部「检查更新」可手动检查，两者共用一个进行中的会话。
+- 启动后延迟检查一次；标题栏右侧「检查更新」可手动检查，两者共用一个进行中的会话。
+- 窗口标题为「Payload Dumper - daxiaamu」。DWM 桌面合成启用时，更新按钮位于最小化按钮左侧；保留系统窗口按钮、拖动及缩放。未启用桌面合成的经典系统保留原生标题栏与底部更新按钮。
 - 自动检查失败或已是最新版时保持安静。手动检查始终反馈结果。
 - 更新弹窗展示版本、本地时区的发布时间与可滚动日志，提供「跳过此版本」「稍后」「下载并更新」。
 - 「稍后」会在检查入口显示红点；跳过仅影响自动提示，手动检查仍可查看。
@@ -74,6 +75,8 @@ HTTP 链接需要服务器支持 Range；增量包及格式支持范围以 paylo
 .\build.ps1
 # 仅构建一个架构
 .\build.ps1 -Architectures x64
+# 主程序运行中，只构建 dist 便携包，不覆盖根目录运行文件
+.\build.ps1 -SkipRootCopy
 # 指定现有的本地 Payload_Dumper_C 项目
 .\build.ps1 -PayloadProject D:\myproject\Payload_Dumper_C
 # 自定义 MinGW-w64 工具链路径
@@ -101,7 +104,7 @@ HTTP 链接需要服务器支持 Range；增量包及格式支持范围以 paylo
 4. `.github/workflows/ota.yml` 在 Release 发布后读取实际 ZIP 中的 EXE 版本、校验所有镜像，生成不可变 manifest 与 stable 指针，在一个 Git 提交中发布。
    也可通过 workflow_dispatch 传入已发布 tag 重试。它不接收 APK，也不为 beta Release 修改 stable 渠道。
 
-可在已登录 `gh` 的本机运行 `python tools/publish_update.py --tag v1.0.2` 生成相同清单；
+可在已登录 `gh` 的本机运行 `python tools/publish_update.py --tag v1.0.3` 生成相同清单；
 仅在所有验证通过后写文件，仍须将 `updates/` 提交到 main。
 
 ## 来源
