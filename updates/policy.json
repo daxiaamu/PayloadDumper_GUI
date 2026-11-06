@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "policyRevision": 1,
+  "policyRevision": 2,
   "maxForcedVersionCode": 0,
-  "reason": "首次发布；后续更新保持可跳过。强制策略只能显式修改并递增 policyRevision。"
+  "reason": "发布 1.0.1，改善系统代理与清单读取兼容性；保留普通更新策略，不改变强制边界。"
 }

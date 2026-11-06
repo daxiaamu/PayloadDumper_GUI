@@ -143,6 +143,15 @@ def main():
         previous=json.loads(pointer_path.read_text(encoding="utf-8"))
         if revision <= previous["policyRevision"]:
             raise ValueError("Increment policyRevision before publishing a new manifest")
+        filename=previous["manifestUrl"].rsplit("/",1)[-1]
+        if not re.fullmatch(r"[0-9]+-[0-9a-f]{64}\.json",filename):
+            raise ValueError("Invalid previous immutable manifest filename")
+        previous_bytes=(args.root/"updates/manifests"/filename).read_bytes()
+        if hashlib.sha256(previous_bytes).hexdigest()!=previous["manifestSha256"]:
+            raise ValueError("Previous manifest digest mismatch")
+        old=json.loads(previous_bytes)
+        if version < old["versionCode"] or forced < old["maxForcedVersionCode"]:
+            raise ValueError("Refusing version or forced-policy rollback")
     manifest={"schemaVersion":1,"appId":"daxiaamu.PayloadDumperGUI","channel":"stable",
               "policyRevision":revision,"versionCode":version,"versionName":name,
               "maxForcedVersionCode":forced,"publishedAt":release["published_at"],

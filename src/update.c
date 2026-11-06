@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#ifndef WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY
+#define WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY 4
+#endif
 
 enum { CHECK_DONE=1, DOWNLOAD_PROGRESS, DOWNLOAD_DONE };
 enum { U_SKIP=3101,U_LATER,U_DOWNLOAD };
@@ -74,8 +77,21 @@ static BOOL http_get(const wchar_t *initial,char **memory,DWORD cap,const wchar_
     wcscpy(url,initial);
     BOOL ok=FALSE; HINTERNET session=NULL,connection=NULL,request=NULL;
     HANDLE output=INVALID_HANDLE_VALUE; char *data=NULL; DWORD total=0;
-    session=WinHttpOpen(L"PayloadDumper/" APP_VERSION_WNAME,WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,NULL,NULL,0);
+    session=WinHttpOpen(L"PayloadDumper/" APP_VERSION_WNAME,WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,NULL,NULL,0);
+    if (!session) {
+        /* Windows 7 fallback: honor the current user's explicitly configured
+         * proxy instead of silently forcing direct connections. */
+        WINHTTP_CURRENT_USER_IE_PROXY_CONFIG proxy={0};
+        if (WinHttpGetIEProxyConfigForCurrentUser(&proxy) && proxy.lpszProxy)
+            session=WinHttpOpen(L"PayloadDumper/" APP_VERSION_WNAME,WINHTTP_ACCESS_TYPE_NAMED_PROXY,proxy.lpszProxy,proxy.lpszProxyBypass,0);
+        else session=WinHttpOpen(L"PayloadDumper/" APP_VERSION_WNAME,WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,NULL,NULL,0);
+        if (proxy.lpszAutoConfigUrl) GlobalFree(proxy.lpszAutoConfigUrl);
+        if (proxy.lpszProxy) GlobalFree(proxy.lpszProxy);
+        if (proxy.lpszProxyBypass) GlobalFree(proxy.lpszProxyBypass);
+    }
     if (!session) goto done;
+    DWORD protocols=WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2;
+    WinHttpSetOption(session,WINHTTP_OPTION_SECURE_PROTOCOLS,&protocols,sizeof(protocols));
     for (int redirect=0;redirect<6 && !stopped();++redirect) {
         URL_COMPONENTS parts={0}; parts.dwStructSize=sizeof(parts);
         parts.dwHostNameLength=parts.dwUrlPathLength=parts.dwExtraInfoLength=(DWORD)-1;
@@ -150,6 +166,22 @@ static unsigned __stdcall fetch_pointer(void *param) {
     if (http_get(url,&json,UP_MAX_META,NULL,0)) f->valid=up_parse_pointer(json,strlen(json),&f->pointer);
     free(json); return 0;
 }
+static BOOL load_manifest(const UpPointer *pointer,UpManifest *manifest) {
+    const wchar_t *relative=pointer->manifest_url+wcslen(manifest_prefixes[0]);
+    for (int i=-1;i<(int)(sizeof(manifest_prefixes)/sizeof(manifest_prefixes[0])) && !stopped();++i) {
+        wchar_t url[UP_URL];
+        if (i<0) {
+            wcscpy(url,L"https://api.github.com/repos/daxiaamu/PayloadDumper_GUI/contents/");
+            wcscat(url,relative); wcscat(url,L"?ref=main");
+        } else { wcscpy(url,manifest_prefixes[i]); wcscat(url,relative); }
+        char *json=NULL,hash[65];
+        BOOL ok=http_get(url,&json,UP_MAX_META,NULL,0) && up_sha_memory(json,strlen(json),hash) &&
+            !strcmp(hash,pointer->sha256) && up_parse_manifest(json,strlen(json),manifest) &&
+            manifest->revision==pointer->revision && manifest->version>=u.prefs.version && manifest->forced>=u.prefs.forced;
+        free(json); if (ok) return TRUE;
+    }
+    return FALSE;
+}
 static unsigned __stdcall check_thread(void *unused) {
     (void)unused;
     CheckResult *result=calloc(1,sizeof(*result));
@@ -166,16 +198,7 @@ static unsigned __stdcall check_thread(void *unused) {
     UpPointer pointers[SOURCE_COUNT]; BOOL valid[SOURCE_COUNT];
     for (size_t i=0;i<SOURCE_COUNT;++i) { pointers[i]=fetches[i].pointer; valid[i]=fetches[i].valid; }
     if (!stopped() && up_select_pointer(pointers,valid,SOURCE_COUNT,u.prefs.revision,u.prefs.manifest_hash,&result->pointer)) {
-        const wchar_t *relative=result->pointer.manifest_url+wcslen(manifest_prefixes[0]);
-        for (size_t i=0;i<sizeof(manifest_prefixes)/sizeof(manifest_prefixes[0]) && !stopped();++i) {
-            wchar_t url[UP_URL]; wcscpy(url,manifest_prefixes[i]); wcscat(url,relative);
-            char *json=NULL,hash[65];
-            if (http_get(url,&json,UP_MAX_META,NULL,0) && up_sha_memory(json,strlen(json),hash) &&
-                !strcmp(hash,result->pointer.sha256) && up_parse_manifest(json,strlen(json),&result->manifest) &&
-                result->manifest.revision==result->pointer.revision && result->manifest.version>=u.prefs.version &&
-                result->manifest.forced>=u.prefs.forced) result->ok=TRUE;
-            free(json); if (result->ok) break;
-        }
+        result->ok=load_manifest(&result->pointer,&result->manifest);
     }
     PostMessageW(u.owner,WM_UPDATE_EVENT,CHECK_DONE,(LPARAM)result); return 0;
 }

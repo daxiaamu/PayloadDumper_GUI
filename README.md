@@ -56,6 +56,7 @@ HTTP 链接需要服务器支持 Range；增量包及格式支持范围以 paylo
 
 元数据使用 GitHub Contents API 作为唯一权威源，配置另外六个 HTTPS 来源；
 清单以内容哈希命名并保持不可变。客户端校验清单哈希、策略 revision、渠道及回滚边界；
+清单正文也优先通过 Contents API 读取，Raw/CDN 作为回退；网络请求遵循系统代理。
 同 revision 的哈希冲突会被拒绝。权威源不可用时至少要求两个镜像主机一致。
 多个 jsDelivr 域名共用供应商，不能视为独立供应商保证。
 
@@ -99,7 +100,7 @@ HTTP 链接需要服务器支持 Range；增量包及格式支持范围以 paylo
 4. `.github/workflows/ota.yml` 在 Release 发布后读取实际 ZIP 中的 EXE 版本、校验所有镜像，生成不可变 manifest 与 stable 指针，在一个 Git 提交中发布。
    也可通过 workflow_dispatch 传入已发布 tag 重试。它不接收 APK，也不为 beta Release 修改 stable 渠道。
 
-可在已登录 `gh` 的本机运行 `python tools/publish_update.py --tag v1.0.0` 生成相同清单；
+可在已登录 `gh` 的本机运行 `python tools/publish_update.py --tag v1.0.1` 生成相同清单；
 仅在所有验证通过后写文件，仍须将 `updates/` 提交到 main。
 
 ## 来源
