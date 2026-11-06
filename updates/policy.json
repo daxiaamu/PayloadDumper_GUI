@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "policyRevision": 6,
+  "policyRevision": 7,
   "maxForcedVersionCode": 0,
-  "reason": "发布 1.0.5，标题栏显示与文件版本、OTA 版本同源的当前版本号；保留普通更新策略。"
+  "reason": "发布 1.0.6，修复解包进度原地刷新并缩小默认窗口尺寸；保留普通更新策略。"
 }

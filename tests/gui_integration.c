@@ -31,6 +31,14 @@ static BOOL log_contains(const wchar_t *expected) {
     if (!text) return FALSE;
     GetWindowTextW(logbox,text,n+1); BOOL found=wcsstr(text,expected)!=NULL; free(text); return found;
 }
+static int log_occurrences(const wchar_t *needle) {
+    int n=GetWindowTextLengthW(logbox),count=0;
+    wchar_t *text=calloc((size_t)n+1,sizeof(wchar_t));
+    if (!text) return -1;
+    GetWindowTextW(logbox,text,n+1);
+    for (const wchar_t *p=text;(p=wcsstr(p,needle))!=NULL;p+=wcslen(needle)) ++count;
+    free(text); return count;
+}
 int wmain(int argc, wchar_t **argv) {
     if (argc!=4) { puts("gui_integration <package-dir> <fixture-dir> <probe-exe>"); return 2; }
     instance=GetModuleHandleW(NULL);
@@ -45,7 +53,7 @@ int wmain(int argc, wchar_t **argv) {
     wc.hbrBackground=white; wc.lpszClassName=L"PayloadDumperIntegration";
     RegisterClassExW(&wc);
     window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,APP_WINDOW_TITLE,WS_OVERLAPPEDWINDOW,
-        0,0,980,720,NULL,NULL,instance,NULL);
+        0,0,860,560,NULL,NULL,instance,NULL);
     check(window && input && output && logbox && progress,"create native controls");
     {
         wchar_t caption_text[128]; GetWindowTextW(window,caption_text,128);
@@ -99,6 +107,16 @@ int wmain(int argc, wchar_t **argv) {
     check(log_contains(L"ARG[4]=<https://example.invalid/a b&c/\"quoted\"/path\\>"),"Windows argument quoting round trip");
     check(log_contains(L"stdout-149") && log_contains(L"stderr-149"),"drain merged stdout and stderr beyond pipe capacity");
     check(log_contains(L"\r\n中文\r\n"),"split UTF-8 characters preserved");
+    check(log_contains(L"250/250 ops (100%)") && log_occurrences(L" ops (")==1,
+          "250 carriage-return progress updates retain only the final line");
+    check(!log_contains(L"WRAPPED_OLD_PROGRESS_") && !log_contains(L"XXXXX") && !log_contains(L"LONG_STATUS_TEXT_TO_BE_REPLACED"),
+          "carriage return clears an entire wrapped line and stale trailing text");
+    check(log_contains(L"PROGRESS_BEGIN\r\n") && log_contains(L"PROGRESS_END\r\nOK\r\nAFTER_CRLF\r\n"),
+          "regular log lines and split CRLF boundaries remain intact");
+    log_text(L"discard-on-clear\r");
+    SendMessageW(window,WM_COMMAND,ID_CLEAR,0);
+    log_text(L"new-after-clear\r\n");
+    check(log_contains(L"new-after-clear") && !log_contains(L"discard-on-clear"),"clear log resets carriage-return state");
     SetWindowTextW(logbox,L"");
     SetWindowTextW(input,L"https://example.invalid/slow");
     start_task(TASK_LIST);

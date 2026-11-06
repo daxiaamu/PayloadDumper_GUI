@@ -23,6 +23,14 @@ int main(void) {
     fwrite("\xe4",1,1,stdout); Sleep(25);
     fwrite("\xb8\xad\xe6",1,3,stdout); Sleep(25);
     fwrite("\x96\x87\n",1,3,stdout);
+    puts("PROGRESS_BEGIN");
+    fputs("WRAPPED_OLD_PROGRESS_",stderr);
+    for (int i=0;i<300;++i) fputc('X',stderr);
+    fputc('\r',stderr); Sleep(25);
+    for (int i=1;i<=250;++i) fprintf(stderr,"\r  %d/250 ops (%d%%)    ",i,i*100/250);
+    fputs("\nPROGRESS_END\n",stderr);
+    fputs("LONG_STATUS_TEXT_TO_BE_REPLACED\r",stderr); Sleep(25);
+    fputs("OK\r",stderr); Sleep(25); fputs("\nAFTER_CRLF\n",stderr);
     BOOL slow=FALSE;
     for (int i=1;i<argc;++i) if (wcsstr(argv[i],L"/slow")) slow=TRUE;
     if (slow) { puts("PROBE_RUNNING"); Sleep(60000); }

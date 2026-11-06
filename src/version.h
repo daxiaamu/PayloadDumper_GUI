@@ -2,7 +2,7 @@
 #define PD_VERSION_H
 #define APP_VERSION_MAJOR 1
 #define APP_VERSION_MINOR 0
-#define APP_VERSION_PATCH 5
+#define APP_VERSION_PATCH 6
 #define PD_STRINGIFY_VALUE(value) #value
 #define PD_STRINGIFY(value) PD_STRINGIFY_VALUE(value)
 #define PD_WIDEN_VALUE(value) L##value

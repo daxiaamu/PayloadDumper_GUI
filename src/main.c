@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <wctype.h>
+#include <limits.h>
 #include "resource.h"
 #include "update.h"
 #include "version.h"
@@ -49,7 +50,9 @@ static wchar_t base_dir[PATH_CAP], dumper_path[PATH_CAP], arb_path[PATH_CAP];
 static Task *active;
 static HANDLE worker_handle;
 static BOOL close_pending;
-static BOOL last_cr;
+/* RichEdit character positions, independent of visual word wrapping. */
+static LONG log_line_start;
+static BOOL log_pending_cr;
 
 static int px(int n) { return MulDiv(n, (int)dpi, 96); }
 static BOOL exists(const wchar_t *path, BOOL directory) {
@@ -78,15 +81,57 @@ static void log_error(const wchar_t *what, DWORD error) {
     message[1023] = 0;
     log_text(message);
 }
+static LONG log_end_position(void) {
+    CHARRANGE range={LONG_MAX,LONG_MAX};
+    SendMessageW(logbox,EM_EXSETSEL,0,(LPARAM)&range);
+    SendMessageW(logbox,EM_EXGETSEL,0,(LPARAM)&range);
+    return range.cpMax;
+}
 static void append_log(const wchar_t *text) {
-    LRESULT len = GetWindowTextLengthW(logbox);
-    if (len > LOG_LIMIT) {
-        SendMessageW(logbox, EM_SETSEL, 0, 131072);
-        SendMessageW(logbox, EM_REPLACESEL, FALSE, (LPARAM)L"");
+    size_t count=wcslen(text);
+    if (!count) return;
+    wchar_t *copy=malloc((count+1)*sizeof(wchar_t));
+    if (!copy) return;
+    memcpy(copy,text,(count+1)*sizeof(wchar_t));
+    if (!GetWindowTextLengthW(logbox)) { log_line_start=0; log_pending_cr=FALSE; }
+    SendMessageW(logbox,WM_SETREDRAW,FALSE,0);
+    wchar_t *p=copy;
+    while (*p) {
+        if (*p==L'\r') {
+            /* Defer the decision: a following LF is a normal newline, even
+             * when the two bytes arrive in different pipe reads. */
+            log_pending_cr=TRUE; ++p;
+        } else if (*p==L'\n') {
+            log_end_position();
+            SendMessageW(logbox,EM_REPLACESEL,FALSE,(LPARAM)L"\r\n");
+            log_line_start=log_end_position(); log_pending_cr=FALSE; ++p;
+        } else {
+            wchar_t *end=p;
+            while (*end && *end!=L'\r' && *end!=L'\n') ++end;
+            wchar_t separator=*end; *end=0;
+            LONG tail=log_end_position();
+            if (log_pending_cr) {
+                CHARRANGE range={log_line_start,tail};
+                SendMessageW(logbox,EM_EXSETSEL,0,(LPARAM)&range);
+                SendMessageW(logbox,EM_REPLACESEL,FALSE,(LPARAM)L"");
+                log_pending_cr=FALSE;
+            }
+            SendMessageW(logbox,EM_REPLACESEL,FALSE,(LPARAM)p);
+            *end=separator; p=end;
+        }
     }
-    SendMessageW(logbox, EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-    SendMessageW(logbox, EM_REPLACESEL, FALSE, (LPARAM)text);
-    SendMessageW(logbox, EM_SCROLLCARET, 0, 0);
+    LONG tail=log_end_position();
+    if (tail>LOG_LIMIT) {
+        CHARRANGE range={0,131072};
+        SendMessageW(logbox,EM_EXSETSEL,0,(LPARAM)&range);
+        SendMessageW(logbox,EM_REPLACESEL,FALSE,(LPARAM)L"");
+        log_line_start=log_line_start>131072?log_line_start-131072:0;
+        log_end_position();
+    }
+    SendMessageW(logbox,WM_SETREDRAW,TRUE,0);
+    SendMessageW(logbox,EM_SCROLLCARET,0,0);
+    InvalidateRect(logbox,NULL,FALSE);
+    free(copy);
 }
 /* Follow the Windows CRT quoting rules, including quotes and trailing slashes.
  * No shell, command interpreter, PATH lookup, or string interpolation is used. */
@@ -107,8 +152,8 @@ static BOOL quote_arg(wchar_t *cmd, size_t cap, const wchar_t *arg) {
     cmd[p++] = L'"'; cmd[p] = 0;
     return TRUE;
 }
-/* Decode only complete UTF-8 codepoints; a pipe read can split a character.
- * Normalize both progress carriage returns and newlines for RichEdit. */
+/* Decode only complete UTF-8 codepoints; preserve CR/LF for the UI stream
+ * renderer, including carriage-return progress refreshes. */
 static void pipe_log(char *data, DWORD *pending, BOOL final) {
     DWORD n = *pending, complete = n;
     if (!final && n) {
@@ -119,19 +164,11 @@ static void pipe_log(char *data, DWORD *pending, BOOL final) {
         if (n - lead < need) complete = lead;
     }
     if (complete) {
-        wchar_t wide[8194], normalized[16390];
+        wchar_t wide[8194];
         int chars = MultiByteToWideChar(CP_UTF8, 0, data, (int)complete, wide, 8193);
-        size_t j = 0;
-        for (int i = 0; i < chars; ++i) {
-            wchar_t c = wide[i];
-            if (c == L'\r') { normalized[j++] = L'\r'; normalized[j++] = L'\n'; last_cr = TRUE; }
-            else if (c == L'\n') {
-                if (!last_cr) { normalized[j++] = L'\r'; normalized[j++] = L'\n'; }
-                last_cr = FALSE;
-            } else { normalized[j++] = c ? c : L' '; last_cr = FALSE; }
-        }
-        normalized[j] = 0;
-        log_text(normalized);
+        for (int i=0;i<chars;++i) if (!wide[i]) wide[i]=L' ';
+        wide[chars]=0;
+        log_text(wide);
     }
     memmove(data, data+complete, n-complete);
     *pending = n-complete;
@@ -174,7 +211,6 @@ static DWORD run_tool(Task *t, const wchar_t *exe, const wchar_t **args, int arg
     CloseHandle(pi.hThread); pi.hThread = NULL;
     {
         char bytes[8192]; DWORD pending = 0, got;
-        last_cr = FALSE;
         while (ReadFile(readpipe, bytes+pending, sizeof(bytes)-pending, &got, NULL) && got) {
             pending += got;
             pipe_log(bytes, &pending, FALSE);
@@ -458,8 +494,8 @@ static LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         return 0;
     case WM_SIZE: layout(); return 0;
     case WM_GETMINMAXINFO:
-        ((MINMAXINFO*)lp)->ptMinTrackSize.x=px(800);
-        ((MINMAXINFO*)lp)->ptMinTrackSize.y=px(485); return 0;
+        ((MINMAXINFO*)lp)->ptMinTrackSize.x=px(720);
+        ((MINMAXINFO*)lp)->ptMinTrackSize.y=px(460); return 0;
     case WM_DPICHANGED: {
         dpi=HIWORD(wp); fonts(); RECT *r=(RECT*)lp;
         SetWindowPos(hwnd,NULL,r->left,r->top,r->right-r->left,r->bottom-r->top,SWP_NOZORDER|SWP_NOACTIVATE);
@@ -487,7 +523,8 @@ static LRESULT CALLBACK wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         case ID_ARB: start_task(TASK_ARB); break;
         case ID_LIST: start_task(TASK_LIST); break;
         case ID_CANCEL: cancel_task(); break;
-        case ID_CLEAR: SetWindowTextW(logbox,L""); break;
+        case ID_CLEAR:
+            SetWindowTextW(logbox,L""); log_line_start=0; log_pending_cr=FALSE; break;
         case ID_UPDATE: updater_check(TRUE); break;
         case ID_OPEN: {
             wchar_t path[PATH_CAP]; GetWindowTextW(output,path,PATH_CAP); trim(path);
@@ -542,7 +579,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     wc.hIcon=LoadIconW(instance,MAKEINTRESOURCEW(IDI_APP)); wc.hIconSm=wc.hIcon;
     if (!RegisterClassExW(&wc)) return 1;
     HWND main_window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,APP_WINDOW_TITLE,WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,CW_USEDEFAULT,px(980),px(645),NULL,NULL,instance,NULL);
+        CW_USEDEFAULT,CW_USEDEFAULT,px(860),px(560),NULL,NULL,instance,NULL);
     if (!main_window || !input || !output || !logbox || !progress) {
         MessageBoxW(NULL,L"无法创建窗口控件。",L"启动失败",MB_ICONERROR); return 1;
     }
