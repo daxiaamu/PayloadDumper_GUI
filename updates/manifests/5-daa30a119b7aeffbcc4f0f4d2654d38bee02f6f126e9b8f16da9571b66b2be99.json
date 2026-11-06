@@ -1,0 +1,46 @@
+{
+  "appId": "daxiaamu.PayloadDumperGUI",
+  "changelog": "## Payload Dumper 1.0.4\n\n- 修复自定义标题栏导致右上角系统窗口按钮不显示的问题，恢复 Windows 原生标题栏与最小化、最大化、关闭按钮。\n- 将“检查更新”放到窗口右下角，并调整任务进度和状态文字的位置，避免重叠。\n- 窗口标题继续保留“Payload Dumper - daxiaamu”。\n- 保留任务结束后隐藏进度条、不回显执行命令等调整。\n\n可通过现有程序的“检查更新”升级，或下载对应架构的完整便携 ZIP。\n",
+  "channel": "stable",
+  "maxForcedVersionCode": 0,
+  "packages": {
+    "x64": {
+      "fileName": "PayloadDumperGUI-win-x64.zip",
+      "sha256": "758a8d53449538a9862036a13a078afec62c952d1e14d2278374724ea75c7e52",
+      "size": 501557,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://ghproxy.net/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://ghproxy.vip/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x64.zip"
+      ]
+    },
+    "x86": {
+      "fileName": "PayloadDumperGUI-win-x86.zip",
+      "sha256": "6b00b25b2d70a37bd0ce7befd04285ddcdce532efc2973338b1141a6cfea8bf4",
+      "size": 576667,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://ghproxy.net/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://ghproxy.vip/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.4/PayloadDumperGUI-win-x86.zip"
+      ]
+    }
+  },
+  "policyRevision": 5,
+  "publishedAt": "2026-11-06T18:09:55Z",
+  "releaseUrl": "https://github.com/daxiaamu/PayloadDumper_GUI/releases/tag/v1.0.4",
+  "schemaVersion": 1,
+  "versionCode": 1000004,
+  "versionName": "1.0.4"
+}
