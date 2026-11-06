@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "channel": "stable",
-  "policyRevision": 5,
+  "policyRevision": 6,
   "maxForcedVersionCode": 0,
-  "reason": "发布 1.0.4，恢复原生标题栏及系统按钮，将更新入口放到右下角；保留普通更新策略。"
+  "reason": "发布 1.0.5，标题栏显示与文件版本、OTA 版本同源的当前版本号；保留普通更新策略。"
 }
