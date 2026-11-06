@@ -1,0 +1,9 @@
+.build/
+output*/
+dist/
+release/
+bin/
+PayloadDumperGUI.exe
+__pycache__/
+legacy/
+*.lnk
