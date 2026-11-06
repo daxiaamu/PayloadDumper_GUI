@@ -1,0 +1,44 @@
+{
+  "appId": "daxiaamu.PayloadDumperGUI",
+  "changelog": "## Payload Dumper 1.0.3\n\n- 将“检查更新”入口移到标题栏右侧、最小化按钮左边，并移除底部重复入口。\n- 窗口标题改为“Payload Dumper - daxiaamu”。\n- 保留系统最小化、最大化、关闭按钮，支持标题栏拖动、双击及边缘缩放；有更新时仍显示提醒红点。\n- 保留任务结束后隐藏进度条、不回显执行命令等调整。\n\n可通过现有程序的“检查更新”升级，或下载对应架构的完整便携 ZIP。\n",
+  "channel": "stable",
+  "maxForcedVersionCode": 0,
+  "packages": {
+    "x64": {
+      "fileName": "PayloadDumperGUI-win-x64.zip",
+      "sha256": "11a34dfd9367cff9e12dd0d43acf7b193b7e234999e5fd813da116053f944bbd",
+      "size": 503917,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://ghproxy.net/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x64.zip"
+      ]
+    },
+    "x86": {
+      "fileName": "PayloadDumperGUI-win-x86.zip",
+      "sha256": "8e8d173971cb1a793fd93941059d01f54c929dbabe8e6ba8cf2aa4e16af7e9fe",
+      "size": 579393,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://ghproxy.net/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.3/PayloadDumperGUI-win-x86.zip"
+      ]
+    }
+  },
+  "policyRevision": 4,
+  "publishedAt": "2026-11-06T17:33:37Z",
+  "releaseUrl": "https://github.com/daxiaamu/PayloadDumper_GUI/releases/tag/v1.0.3",
+  "schemaVersion": 1,
+  "versionCode": 1000003,
+  "versionName": "1.0.3"
+}
