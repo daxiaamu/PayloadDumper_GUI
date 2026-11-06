@@ -1,7 +1,7 @@
 {
   "channel": "stable",
-  "manifestSha256": "19e4d13bfd2f2c75a49cd9b6667a9eca5bf0eeb21a9e02d5b595722e9ad5e31e",
-  "manifestUrl": "https://raw.githubusercontent.com/daxiaamu/PayloadDumper_GUI/main/updates/manifests/1-19e4d13bfd2f2c75a49cd9b6667a9eca5bf0eeb21a9e02d5b595722e9ad5e31e.json",
-  "policyRevision": 1,
+  "manifestSha256": "b30cab649dcbab3e0ee5af47c72696ee568930e4d5750a38df5c55313e142bac",
+  "manifestUrl": "https://raw.githubusercontent.com/daxiaamu/PayloadDumper_GUI/main/updates/manifests/2-b30cab649dcbab3e0ee5af47c72696ee568930e4d5750a38df5c55313e142bac.json",
+  "policyRevision": 2,
   "schemaVersion": 1
 }

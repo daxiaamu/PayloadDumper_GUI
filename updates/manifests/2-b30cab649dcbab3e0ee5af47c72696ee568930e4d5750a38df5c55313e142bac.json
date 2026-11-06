@@ -1,0 +1,44 @@
+{
+  "appId": "daxiaamu.PayloadDumperGUI",
+  "changelog": "## Payload Dumper 1.0.1\n\n- 完成原生 C 版及 x64 / x86 便携发行包，配套工具统一放在 bin。\n- 窗口标题精简为 Payload Dumper；线程框显示“留空=自动”，移除重复顶部标题和启动提示。\n- 程序 OTA 支持自动/手动检查、跳过/稍后、按架构下载、多源 SHA-256 校验、C 更新器替换与失败回滚。\n- 改善网络兼容性：更新请求遵循系统代理，清单正文优先通过 GitHub Contents API 获取，Raw/CDN 回退。\n- 更新清单由 GitHub Actions 从实际 Release ZIP 生成；每个架构至少五个镜像主机通过完整哈希验证后才切换指针。\n\n首次使用请下载对应架构的完整 ZIP，解压后运行 PayloadDumperGUI.exe，并保留 bin 与 licenses 目录。\n",
+  "channel": "stable",
+  "maxForcedVersionCode": 0,
+  "packages": {
+    "x64": {
+      "fileName": "PayloadDumperGUI-win-x64.zip",
+      "sha256": "7bfa6a0ff0cf37c76b8b9749a1dc4679e0779e104bc9db5d41d63564f4cb7019",
+      "size": 501404,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://ghproxy.vip/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x64.zip"
+      ]
+    },
+    "x86": {
+      "fileName": "PayloadDumperGUI-win-x86.zip",
+      "sha256": "cec0dc8b4774c8699aec0bdf4e99388e1d646189e1656bd63a0dc8daf544bac4",
+      "size": 576467,
+      "urls": [
+        "https://ghfast.top/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://gh.monlor.com/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://xget.xi-xu.me/gh/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://ghproxy.vip/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://gh.3w.pm/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://gh-proxy.org/https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip",
+        "https://github.com/daxiaamu/PayloadDumper_GUI/releases/download/v1.0.1/PayloadDumperGUI-win-x86.zip"
+      ]
+    }
+  },
+  "policyRevision": 2,
+  "publishedAt": "2026-11-06T17:03:57Z",
+  "releaseUrl": "https://github.com/daxiaamu/PayloadDumper_GUI/releases/tag/v1.0.1",
+  "schemaVersion": 1,
+  "versionCode": 1000001,
+  "versionName": "1.0.1"
+}
