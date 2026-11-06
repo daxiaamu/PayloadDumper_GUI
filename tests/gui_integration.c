@@ -47,6 +47,7 @@ int wmain(int argc, wchar_t **argv) {
     window=CreateWindowExW(WS_EX_CONTROLPARENT,wc.lpszClassName,L"Test",WS_OVERLAPPEDWINDOW,
         0,0,980,720,NULL,NULL,instance,NULL);
     check(window && input && output && logbox && progress,"create native controls");
+    check(!(GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE),"idle task progress is hidden");
     wchar_t path[PATH_CAP], outdir[PATH_CAP];
     join_path(path,PATH_CAP,argv[2],L"OTA 中文 & 空格.zip");
     set_input(path);
@@ -54,7 +55,9 @@ int wmain(int argc, wchar_t **argv) {
     SetWindowTextW(output,outdir);
     start_task(TASK_LIST);
     check(active && !IsWindowEnabled(input) && IsWindowEnabled(cancelbtn),"busy controls and cancellable task");
+    check((GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE)!=0,"running task progress is shown");
     check(wait_done(15000) && status_is(L"任务完成") && log_contains(L"xbl_config"),"partition list reaches UI log");
+    check(!(GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE),"successful task hides its progress indicator");
     SetWindowTextW(partitions,L"boot, xbl_config");
     SetWindowTextW(workers,L"2");
     start_task(TASK_UNPACK);
@@ -69,6 +72,7 @@ int wmain(int argc, wchar_t **argv) {
     join_path(path,PATH_CAP,argv[2],L"bad.bin"); SetWindowTextW(input,path);
     start_task(TASK_LIST);
     check(wait_done(15000) && status_is(L"任务失败，查看日志") && IsWindowEnabled(input),"failure status and UI restored");
+    check(!(GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE),"failed task hides its progress indicator");
     /* Exercise our child runner with an argument containing embedded quotes,
      * ampersands, spaces and a trailing slash. No shell gets involved. */
     wcscpy(dumper_path,argv[3]);
@@ -76,6 +80,7 @@ int wmain(int argc, wchar_t **argv) {
     SetWindowTextW(input,L"https://example.invalid/a b&c/\"quoted\"/path\\");
     start_task(TASK_LIST);
     check(wait_done(15000) && status_is(L"任务完成"),"probe child completed");
+    check(!log_contains(L"\r\n> "),"execution command is not echoed into the user log");
     check(log_contains(L"ARG[4]=<https://example.invalid/a b&c/\"quoted\"/path\\>"),"Windows argument quoting round trip");
     check(log_contains(L"stdout-149") && log_contains(L"stderr-149"),"drain merged stdout and stderr beyond pipe capacity");
     check(log_contains(L"\r\n中文\r\n"),"split UTF-8 characters preserved");
@@ -89,6 +94,7 @@ int wmain(int argc, wchar_t **argv) {
     if (job) DuplicateHandle(GetCurrentProcess(),job,GetCurrentProcess(),&job_copy,0,FALSE,DUPLICATE_SAME_ACCESS);
     cancel_task();
     check(wait_done(5000) && status_is(L"任务已取消"),"cancel terminates running child without blocking UI");
+    check(!(GetWindowLongPtrW(progress,GWL_STYLE)&WS_VISIBLE),"cancelled task hides its progress indicator");
     JOBOBJECT_BASIC_ACCOUNTING_INFORMATION info={0};
     check(job_copy && QueryInformationJobObject(job_copy,JobObjectBasicAccountingInformation,&info,sizeof(info),NULL) && !info.ActiveProcesses,"no surviving child processes after cancellation");
     if (job_copy) CloseHandle(job_copy);

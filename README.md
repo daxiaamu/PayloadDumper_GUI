@@ -32,6 +32,7 @@ dist/win-x64/                 dist/win-x86/
 - 「检查 ARB」通过本项目的 dumper 提取 `xbl_config.img`，再调用 koaaN 的 arbextract；不使用 dumper 的内置 `--arb` 替代。
 - ARB 临时文件使用系统临时目录中的唯一任务目录，结束后清理。
 - 后台运行期间可查看、复制或清空日志；「取消任务」会结束子进程。
+  日志不回显执行命令；进度条仅在任务运行时显示，完成、失败或取消后隐藏。
   关闭窗口也会先取消任务。已写入的部分解包镜像会保留，不能视为完整镜像。
 - 可把文件拖到主程序图标上，或通过 `PayloadDumperGUI.exe "D:\ROM\ota.zip"` 预填输入。
 
@@ -100,7 +101,7 @@ HTTP 链接需要服务器支持 Range；增量包及格式支持范围以 paylo
 4. `.github/workflows/ota.yml` 在 Release 发布后读取实际 ZIP 中的 EXE 版本、校验所有镜像，生成不可变 manifest 与 stable 指针，在一个 Git 提交中发布。
    也可通过 workflow_dispatch 传入已发布 tag 重试。它不接收 APK，也不为 beta Release 修改 stable 渠道。
 
-可在已登录 `gh` 的本机运行 `python tools/publish_update.py --tag v1.0.1` 生成相同清单；
+可在已登录 `gh` 的本机运行 `python tools/publish_update.py --tag v1.0.2` 生成相同清单；
 仅在所有验证通过后写文件，仍须将 `updates/` 提交到 main。
 
 ## 来源

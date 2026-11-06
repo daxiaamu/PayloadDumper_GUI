@@ -147,7 +147,6 @@ static DWORD run_tool(Task *t, const wchar_t *exe, const wchar_t **args, int arg
     if (!quote_arg(cmd, PATH_CAP, exe)) goto too_long;
     for (int i = 0; i < argc; ++i) if (!quote_arg(cmd, PATH_CAP, args[i])) goto too_long;
     if (cancelled(t)) { result = ERROR_CANCELLED; goto cleanup; }
-    log_text(L"\r\n> "); log_text(cmd); log_text(L"\r\n");
     if (!CreatePipe(&readpipe, &writepipe, &sa, 0)) goto failed;
     if (!SetHandleInformation(readpipe, HANDLE_FLAG_INHERIT, 0)) goto failed;
     nullin = CreateFileW(L"NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -307,6 +306,8 @@ static void set_busy(BOOL busy) {
     for (size_t i=0; i<sizeof(controls)/sizeof(controls[0]); ++i) EnableWindow(controls[i], !busy);
     EnableWindow(cancelbtn, busy);
     SendMessageW(progress, PBM_SETMARQUEE, busy, 30);
+    if (!busy) SendMessageW(progress, PBM_SETPOS, 0, 0);
+    ShowWindow(progress, busy ? SW_SHOW : SW_HIDE);
     updater_task_running(busy);
 }
 static void start_task(int kind) {
