@@ -1,0 +1,7 @@
+{
+  "channel": "stable",
+  "manifestSha256": "19e4d13bfd2f2c75a49cd9b6667a9eca5bf0eeb21a9e02d5b595722e9ad5e31e",
+  "manifestUrl": "https://raw.githubusercontent.com/daxiaamu/PayloadDumper_GUI/main/updates/manifests/1-19e4d13bfd2f2c75a49cd9b6667a9eca5bf0eeb21a9e02d5b595722e9ad5e31e.json",
+  "policyRevision": 1,
+  "schemaVersion": 1
+}
